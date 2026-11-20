@@ -1,0 +1,42 @@
+# === IDEs (PyCharm / CLion / VS / VS Code) ===
+.idea/
+.vs/
+.vscode/
+*.suo
+*.user
+*.db
+*.opendb
+
+# === C / C++ / CMake Build Artifacts ===
+build/
+out/
+cmake-build-*/
+CMakeSettings.json
+CMakeUserPresets.json
+*.vcxproj
+*.filters
+*.dll
+*.so
+*.dylib
+*.lib
+*.a
+*.exp
+*.obj
+*.o
+*.exe
+
+# === Python / Virtual Environment ===
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.egg-info/
+dist/
+
+# === Project Data / Logs / OS ===
+*.bin
+*.log
+.DS_Store
+Thumbs.db

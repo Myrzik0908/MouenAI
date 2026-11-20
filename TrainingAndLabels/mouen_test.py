@@ -1,0 +1,35 @@
+from MouenAPI import Tokenizer, TokenizerType, Model, WorkspaceType, engine_size_t
+import numpy as np
+
+# Tokenizer example
+tok = Tokenizer(TokenizerType.TOK_GREEDY)
+
+# Example of creating a model and workspaces
+mod = Model()
+mod.create(2, 4096, 256, 8, 4, 1024, 1e-3)
+mod.init_model(0.02)
+mod.init_workspace(WorkspaceType.ENGINE_TRAINING, 512)
+mod.init_train()
+
+# About the model
+mod.show_details()
+
+# Simple educational examples(XOR)
+xor_x = [[0, 0], [1, 0], [0, 1], [1, 1]]
+xor_y = [[0], [1], [1], [0]]
+
+# Train loop
+for epoch in range(35):
+    glob_loss = 0
+    for i, y in enumerate(xor_y):
+        x = xor_x[i]
+        # A zero-copy array (dtype: size_t) is passed to C.
+        arr = np.array([x[0], x[1], y[0]], dtype=engine_size_t)
+        label = np.array([0, 0, 1], dtype=np.uint8)  # last token
+
+        loss = mod.train_step(arr, arr, label)
+        glob_loss += loss
+
+    # AdamW optimizer step (lr, beta1, beta2, eps, weight_decay, grad_clip)
+    norm = mod.optimizer_step(0.001, 0.9, 0.999, 1e-8, 0.01, 1.0)
+    print(f"epoch {epoch}: loss={glob_loss / 4:.4f}, norm={norm:.4f}")

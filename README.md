@@ -1,4 +1,4 @@
-# MouenAI - transformer engine in pure C
+# *MouenAI - transformer engine in pure C*
 
 ---
 
@@ -7,18 +7,18 @@ A transformer engine in C99 with OpenMP, cache-friendly data layout, and a Pytho
 ---
 
 ### Peculiarities:
- - 1. Pure C: The engine core (forward/backward passes, tensors, optimizers) is written in C, free from heavy dependencies.
- - 2. Transformer from Scratch: Implements the Transformer architecture, including Multi-Head Attention, LayerNorm, and residual connections.
- - 3. SiLU (Swish) Activation: Uses $x \cdot \text{sigmoid}(x)$ instead of ReLU or GELU.
- - 4. KV-Cache & Prefix Matching: Caches context during inference, recomputing only the tokens that have changed.
- - 5. AdamW Optimizer: A built-in optimizer supporting weight decay, gradient clipping, and momentum accumulation.
- - 6. Zero-Copy Python API: Bindings via `ctypes` pass NumPy arrays to C without memory copying. A Python-side RAII wrapper ensures no memory leaks occur on the C side.
+ - **Pure C**: The engine core (forward/backward passes, tensors, optimizers) is written in C, free from heavy dependencies.
+ - **Transformer from Scratch**: Implements the Transformer architecture, including Multi-Head Attention, LayerNorm, and residual connections.
+ - **SiLU (Swish) Activation**: Uses `x * sigmoid(x)` instead of `ReLU` or `GELU`.
+ - **KV-Cache & Prefix Matching**: Caches context during inference, recomputing only the tokens that have changed.
+ - **AdamW Optimizer**: A built-in optimizer supporting weight decay, gradient clipping, and momentum accumulation.
+ - **Zero-Copy Python API**: Bindings via `ctypes` pass NumPy arrays to C without memory copying. A Python-side RAII wrapper ensures no memory leaks occur on the C side.
 
 ### Technology stack:
- - 1. Core: C (C11/C17/C23)
- - 2. Build: CMake (+ OpenMP for parallel computing)
- - 3. API: Python 3.11+, ctypes, numpy
- - 4. Building on Windows: LLVM/Clang only (MSVC does not support the new `enum : int` syntax or the project's specific requirements).
+ - **Core**: C (C11/C17/C23)
+ - **Build**: CMake (+ OpenMP for parallel computing)
+ - **API**: Python 3.11+, ctypes, numpy
+ - **Building on Windows**: LLVM/Clang only (MSVC does not support the new `enum : int` syntax or the project's specific requirements).
 
 ### Installation and assembly:
 
@@ -45,7 +45,7 @@ cmake --build build
 pip install numpy
 ```
 
-### ⚡ Quick Start (Python API)
+### Quick Start (Python API)
 
 An example of creating a model and training it on XOR:
 

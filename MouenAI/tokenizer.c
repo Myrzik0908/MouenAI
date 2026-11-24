@@ -6,6 +6,11 @@
 #include <errno.h>
 #include <omp.h>
 
+// For use with Windows
+#ifdef _WIN32
+#include <windows.h>
+#endif 
+
 
 /*
  * structure:
@@ -161,6 +166,10 @@ int tok_import_tokenizer_from_bin(Tokenizer* self, const char* filepath) {
 }
 
 Tokenizer* tok_create(TokenizerType type, const char* filepath) {
+#ifdef _WIN32
+	SetConsoleOutputCP(CP_UTF8);
+	SetConsoleCP(CP_UTF8);
+#endif
 	// Protection against non-existent types
 	switch (type) {
 	case TOK_GREEDY:

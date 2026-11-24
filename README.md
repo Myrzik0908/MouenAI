@@ -45,6 +45,11 @@ cmake --build build
 pip install numpy
 ```
 
+4. Run the tokenizer test in Python:
+```bash
+python -m tests.tokenizer_test
+```
+
 ### Quick Start (Python API)
 
 An example of creating a model and training it on XOR:

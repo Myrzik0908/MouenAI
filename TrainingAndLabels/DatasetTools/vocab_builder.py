@@ -1,20 +1,34 @@
-import ctypes
+import ctypes, re
 from collections import Counter
 from collections.abc import Iterable
 
 class GreedyTokenizer:
-    def __init__(self, start_vocab: list[str] | None = None, max_len_vocab: int=5000) -> None:
+    def __init__(
+            self,
+            start_vocab: list[str] | None = None,
+            max_len_vocab: int=5000,
+            min_frequency: int = 2,
+            max_token_len: int = 16
+    ) -> None:
         """
         A greedy tokenizer takes the longest sequence.
         The unknown token is already built into the tokenizer!
         :param start_vocab:
         :param max_len_vocab:
+        :param min_frequency:
+        :param max_token_len:
         """
-        self.vocab = sorted(set(start_vocab or []), key=lambda x: (-len(x.encode('utf-8')), x))
+        # settings
+        self.base_vocab: set[str] = set(start_vocab or [])
+        self.max_len_vocab: int = max_len_vocab
+        self.min_frequency: int = min_frequency
+        self.max_token_len: int = max_token_len
+        self.token_counts: Counter[str] = Counter()
+        # runtime
+        self.vocab = sorted(set(self.base_vocab), key=lambda x: (-len(x.encode('utf-8')), x))
         self.max_char_len: int = 0
         self.stoi: dict[str, int] = {}
         self.to_index()
-        self.max_len_vocab = max_len_vocab
 
     def show_vocab(self) -> None:
         """
@@ -92,8 +106,35 @@ class GreedyTokenizer:
     def train(
             self,
             dataset_corpus: str | Iterable[str],
-            vocab_size: int | None = None,
-            min_frequency: int = 2,
-            max_token_len: int = 16
+            pattern: str = r'\w+|\s+|[^\w\s]'
     ) -> None:
-        pass
+        text = (dataset_corpus,) if isinstance(dataset_corpus, str) else dataset_corpus
+        counts = self.token_counts
+        min_frequency = self.min_frequency
+        max_len = self.max_token_len
+        compiled_pattern = re.compile(pattern)
+        for example in text:
+            fragments = compiled_pattern.findall(example)
+            for chunk in fragments:
+                n = len(chunk)
+                if n == 1:
+                    counts[chunk] += 1
+                else:
+                    for s in range(n):
+                        for e in range(s + 1, min(n, s + max_len) + 1):
+                            counts[chunk[s:e]] += 1
+        candidates = [
+            (tok, count) for tok, count in counts.items()
+            if (count >= min_frequency or len(tok) == 1) and tok not in self.base_vocab
+        ]
+        candidates.sort(
+            key=lambda x: float('inf') if len(x[0]) == 1 else x[1] * (len(x[0]) ** 0.5),
+            reverse=True
+        )
+        limit = max(0, self.max_len_vocab - len(self.base_vocab))
+        top_tokens = [tok for tok, _ in candidates[:limit]]
+        self.vocab = sorted(
+            self.base_vocab.union(top_tokens),
+            key=lambda x: (-len(x.encode('utf-8')), x)
+        )
+        self.to_index()

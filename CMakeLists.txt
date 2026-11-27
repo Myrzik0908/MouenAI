@@ -43,7 +43,7 @@ set_target_properties(MouenAI PROPERTIES PREFIX "")
 
 # Calculate the absolute path to the folder containing your source files
 get_filename_component(REAL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/MouenAI" ABSOLUTE)
-message(STATUS "!!! АБСОЛЮТНЫЙ ПУТЬ К ИСХОДНИКАМ: ${REAL_SOURCE_DIR}")
+message(STATUS "!!! ABSOLUTE PATH TO THE SOURCE FILES: ${REAL_SOURCE_DIR}")
 
 # Configuring include paths for the library
 target_include_directories(MouenAI PUBLIC "${REAL_SOURCE_DIR}")

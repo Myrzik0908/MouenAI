@@ -37,6 +37,9 @@ dist/
 
 # === Project Data / Logs / OS ===
 *.bin
+*.json
+*.json.gz
+*.gz
 *.log
 .DS_Store
 Thumbs.db

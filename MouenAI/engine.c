@@ -1,3 +1,6 @@
+#ifndef _WIN32
+#define _POSIX_C_SOURCE 200809L
+#endif // !_WIN32
 #include "engine.h"
 #include "tokenizer.h"
 #include <stdio.h>
@@ -10,7 +13,7 @@
 #include <omp.h>
 #ifdef _WIN32
 // ¯\_(ツ)_/¯
-#include "mman.h"
+#include "mman.h" // placeholder for IntelliSense suggestions
 #else
 #include <sys/mman.h>   
 #include <unistd.h>
@@ -19,7 +22,7 @@
 
 #define RAND_MAX_CUSTOM 32768   // or 32767.0f
 
-static inline int rand_r(unsigned int* seed) {
+static inline int mouen_rand_r(unsigned int* seed) {
 	*seed = *seed * 1103515245 + 12345;
 	return (int)(*seed / 65536) % RAND_MAX_CUSTOM; // Return from 0 to 32767 (corresponds RAND_MAX)
 }
@@ -34,8 +37,8 @@ static inline void randh(float* arr, const size_t size, const float stddev) {
 		for (size_t i = 0; i < size; i++) {
 			// Unique seed for random
 			// Box-Muller transformation to form a normal distribution
-			float u1 = (float)rand_r(&seed) / RAND_MAX_CUSTOM;
-			float u2 = (float)rand_r(&seed) / RAND_MAX_CUSTOM;
+			float u1 = (float)mouen_rand_r(&seed) / RAND_MAX_CUSTOM;
+			float u2 = (float)mouen_rand_r(&seed) / RAND_MAX_CUSTOM;
 			if (u1 < 1e-7f) u1 = 1e-7f;
 			float z0 = sqrtf(-2.0f * logf(u1))
 				* cosf(2.0f * 3.1415926535f * u2);
@@ -993,7 +996,7 @@ size_t InferenceStep(
 
 	// Temperature sampling: sample from the distribution
 	unsigned int seed = (unsigned int)time(NULL) ^ (omp_get_thread_num() << 16) ^ (unsigned int)clock() ^ (unsigned int)(inputs_size);
-	float r = (float)rand_r(&seed) / RAND_MAX_CUSTOM;
+	float r = (float)mouen_rand_r(&seed) / RAND_MAX_CUSTOM;
 	float cum = 0.0f;
 	for (size_t i = 0; i < vocd; i++) {
 		cum += logits[i];

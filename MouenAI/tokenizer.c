@@ -514,7 +514,7 @@ Tokenizer* tok_load(FILE* file) {
 	return tokenizer;
 }
 
-static void greedyprintf(GreedyData* self, const size_t token) {
+static void greedyprintf(const GreedyData* self, const size_t token) {
 	if (!self) return;
 	size_t len = self->num_tokens;
 	char* vocab = self->vocab;

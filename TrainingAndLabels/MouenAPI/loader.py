@@ -31,12 +31,12 @@ def _priority(p: Path) -> int:
     if "inference" in s: return 3
     return 1
 
-def _find() -> Path:
+def _find_all() -> list[Path]:
     if env := os.environ.get("MYLIB_PATH"):
         p = Path(env)
         if not p.exists():
             raise FileNotFoundError(f"MYLIB_PATH={env} not found")
-        return p
+        return [p]
 
     hits = [p for n in NAMES for p in ROOT.rglob(n)]
     if not hits:
@@ -52,9 +52,9 @@ def get_lib() -> ctypes.CDLL:
 
     if _auto_choise:
         print("Note: You can manually select a library build by invoking SelectiveLoading()")
-        path = _find()[0]
+        path = _find_all()[0]
     else:
-        solutions = _find()
+        solutions = _find_all()
         for i, x in enumerate(solutions):
             print(f"{i}: '{x}'")
         choice = int(input("select the desired build (specify the build index): "))

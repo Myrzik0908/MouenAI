@@ -1,4 +1,5 @@
-import ctypes, re
+import ctypes, re, gzip
+import json
 from collections import Counter
 from collections.abc import Iterable
 
@@ -103,26 +104,13 @@ class GreedyTokenizer:
         vocab_len = len(self.vocab)
         return ''.join(self.vocab[i - 1] if 0 <= i - 1< vocab_len else '' for i in data)
 
-    def train(
-            self,
-            dataset_corpus: str | Iterable[str],
-            pattern: str = r'\w+|\s+|[^\w\s]'
-    ) -> None:
-        text = (dataset_corpus,) if isinstance(dataset_corpus, str) else dataset_corpus
-        counts = self.token_counts
+    def _rebuild_vocab(self) -> None:
+        """
+        Rebuilding the dictionary
+        :return:
+        """
         min_frequency = self.min_frequency
-        max_len = self.max_token_len
-        compiled_pattern = re.compile(pattern)
-        for example in text:
-            fragments = compiled_pattern.findall(example)
-            for chunk in fragments:
-                n = len(chunk)
-                if n == 1:
-                    counts[chunk] += 1
-                else:
-                    for s in range(n):
-                        for e in range(s + 1, min(n, s + max_len) + 1):
-                            counts[chunk[s:e]] += 1
+        counts = self.token_counts
         candidates = [
             (tok, count) for tok, count in counts.items()
             if (count >= min_frequency or len(tok) == 1) and tok not in self.base_vocab
@@ -138,3 +126,56 @@ class GreedyTokenizer:
             key=lambda x: (-len(x.encode('utf-8')), x)
         )
         self.to_index()
+
+    def train(
+            self,
+            dataset_corpus: str | Iterable[str],
+            pattern: str = r'\w+|\s+|[^\w\s]'
+    ) -> None:
+        text = (dataset_corpus,) if isinstance(dataset_corpus, str) else dataset_corpus
+        counts = self.token_counts
+        max_len = self.max_token_len
+        compiled_pattern = re.compile(pattern)
+        for example in text:
+            fragments = compiled_pattern.findall(example)
+            for chunk in fragments:
+                n = len(chunk)
+                if n == 1:
+                    counts[chunk] += 1
+                else:
+                    for s in range(n):
+                        for e in range(s + 1, min(n, s + max_len) + 1):
+                            counts[chunk[s:e]] += 1
+        self._rebuild_vocab()
+
+    def save_checkpoint(self, path: str) -> None:
+        """
+        Saves the entire tokenizer for reloading and further training
+        Use the file extension: json.gz
+        :param path:
+        :return:
+        """
+        file_data = {
+            "base_vocab": list(self.base_vocab),
+            "max_len_vocab": self.max_len_vocab,
+            "min_frequency": self.min_frequency,
+            "max_token_len": self.max_token_len,
+            "token_counts": self.token_counts
+        }
+        with gzip.open(path, "wt", encoding="utf-8") as f:
+            json.dump(file_data, f, ensure_ascii=False)
+
+    @classmethod
+    def load_checkpoint(cls, path: str) -> "GreedyTokenizer":
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            data = json.load(f)
+
+        tokenizer = cls(
+            start_vocab=data["base_vocab"],
+            max_len_vocab=data["max_len_vocab"],
+            min_frequency=data["min_frequency"],
+            max_token_len=data["max_token_len"]
+        )
+        tokenizer.token_counts = data["token_counts"]
+        tokenizer._rebuild_vocab()
+        return tokenizer

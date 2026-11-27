@@ -25,7 +25,7 @@ The model consists of the following fields:
 
 ### Field Descriptions
 
-- **Magic String**: A 4-character string used to identify the file format.
+- **Magic String**: A 6-character string used to identify the file format.
 - **File Version**: An unsigned 32-bit integer indicating the version of the file format.
 - **Model Configuration**: 
   - `vocab_size`: An unsigned 64-bit integer representing the vocabulary size.
